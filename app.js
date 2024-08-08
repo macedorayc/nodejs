@@ -54,9 +54,7 @@ servidor.get('/calculadora/somar/:n1/:n2', (req, resp) => {
 }) 
 
 servidor.get('/mensagem/ola', (req, resp) => {
-    if (!req.query.nome == null 
-        // sem o '!' = || req.query.nome == undefined (! = undefined)
-    ){
+    if (!req.query.nome == null){
         resp.status(400).send({
             erro: 'O parâmetro query (nome) é obrigatorio.'
         })
