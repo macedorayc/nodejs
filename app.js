@@ -10,7 +10,7 @@ servidor.get ('/helloworld', (req, resp) => {
 })
 
 
-servidor.get('/mensagem/boasvindas', (req,resp) => {
+servidor.get('/mensagem/boasvindas', (req, resp) => {
     resp.send('Olá, sejam bem-vindos e bem-vindas!');
 })
 
@@ -20,7 +20,7 @@ servidor.get('/v2/mensagem/boas', (req, resp) => {
 })
 
 
-servidor.get('/mensagem/ocupado', (req,resp) => {
+servidor.get('/mensagem/ocupado', (req, resp) => {
     resp.send('Estou ocupado, deixe uma mensagem no emil xxxx');
 })
 
@@ -34,7 +34,7 @@ servidor.get('/calculadora/:n1/:n2', (req, resp) => {
 })
 
 
-servidor.post('/media', (req,resp) => {
+servidor.post('/media', (req, resp) => {
     let n1 = req.body.nota1;
     let n2 = req.body.nota2;
     let n3 = req.body.nota3;
@@ -70,6 +70,13 @@ servidor.post('/loja/pedido', (req, resp) => {
 
     resp.send('o total do pedido ficou em' + total);
 })
+
+
+servidor.post('loja/pedido/completo', (req, resp) => {
+
+}) 
+
+
 
 
 
