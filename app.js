@@ -1,12 +1,17 @@
 import express from 'express';
+import cors from 'cors';
 
 const servidor = express();
 servidor.use(express.json());
+servidor.use(cors());
 
 
 servidor.get ('/helloworld', (req, resp) => {
     // codigo o endpoint
-    resp.send('Hello world! =))');
+    //ex para n retornar string
+    resp.send({
+        mensagem: 'Hello world!'
+    });
 })
 
 
@@ -21,16 +26,48 @@ servidor.get('/v2/mensagem/boas', (req, resp) => {
 
 
 servidor.get('/mensagem/ocupado', (req, resp) => {
-    resp.send('Estou ocupado, deixe uma mensagem no emil xxxx');
+    resp.send({
+        mensagem: 'Estou ocupado, deixe uma mensagem no emil xxxx'
+    });
 })
 
 
-servidor.get('/calculadora/:n1/:n2', (req, resp) => {
+servidor.get('/calculadora/somar/:n1/:n2', (req, resp) => {
+    if (isNaN(req.params.n1) || isNaN(req.params.n2)) {
+        resp.status(400).send({
+            erro: 'Os parâmetros devem ser números'
+        })
+        return;
+    }
+
     let n1 = Number(req.params.n1);
     let n2 = Number(req.params.n2);
     let soma = n1 + n2;
 
-    resp.send('A soma é' + soma);
+    resp.send({ 
+        entradas: {
+            numero1: n1,
+            numero2: n2
+        },
+        soma: soma
+    });
+}) 
+
+servidor.get('/mensagem/ola', (req, resp) => {
+    if (!req.query.nome == null 
+        // sem o '!' = || req.query.nome == undefined (! = undefined)
+    ){
+        resp.status(400).send({
+            erro: 'O parâmetro query (nome) é obrigatorio.'
+        })
+        return;
+    }
+
+    let pessoa = req.query.nome ?? 'você';
+
+    resp.send({
+        mensagem: 'Olá' + pessoa
+    });
 })
 
 
@@ -41,8 +78,11 @@ servidor.post('/media', (req, resp) => {
 
     let media = (n1 + n2 + n3) / 3;
 
-    resp.send('A media é' + media);
+    resp.send({
+        media: media
+    });
 })
+
 
 servidor.post('/dobros', (req, resp) => {
     let nums = req.body.numeros;
@@ -54,6 +94,8 @@ servidor.post('/dobros', (req, resp) => {
 
     resp.send('Os dobros dos numeros são' + nums2);
 })
+
+
 
 servidor.post('/loja/pedido', (req, resp) => {
     let total = req.body.total;
@@ -68,12 +110,40 @@ servidor.post('/loja/pedido', (req, resp) => {
         total -= 100;
     }
 
-    resp.send('o total do pedido ficou em' + total);
+    let valorparcela = total / parcelas;
+
+    resp.send({
+        total: total,
+        valorparcelas: valorparcela
+    });
 })
 
 
 servidor.post('loja/pedido/completo', (req, resp) => {
+    let parcelas = req.body.parcelas;
+    let itens = req.body.itens;
+    let cupom = req.query.cupom;
 
+    let total = 0;
+    for (let produto of itens) {
+        total += produto.preco
+    }
+
+    if (parcelas > 1) {
+        let juros = total * 0.05;
+        total += juros;
+    }
+
+    if (cupom == 'QUERO100') {
+        total -= 100;
+    }
+
+    let valorparcela = total/ parcelas;
+
+    resp.send({
+        total: total,
+        valorparcela: valorparcela
+    });
 }) 
 
 
