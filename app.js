@@ -147,12 +147,6 @@ servidor.post('loja/pedido/completo', (req, resp) => {
 
 
 
-
-
-
-
-
-
 servidor.listen(
     5001,
      () => console.log('==> API subiu com sucesso na porta 5001!'));
