@@ -1,9 +1,17 @@
+import 'dotenv/config.js';
+
 import express from 'express';
 import cors from 'cors';
+import multer from 'multer';
 
 const servidor = express();
 servidor.use(express.json());
 servidor.use(cors());
+
+let uploadperfil = multer({ dest: './storage/perfil'})
+
+servidor.use('/storage/perfil', express.static('./storage/perfil'))
+servidor.use('/storage/album', express.static('./storage/album'))
 
 
 servidor.get ('/helloworld', (req, resp) => {
@@ -118,36 +126,60 @@ servidor.post('/loja/pedido', (req, resp) => {
 
 
 servidor.post('loja/pedido/completo', (req, resp) => {
-    let parcelas = req.body.parcelas;
-    let itens = req.body.itens;
-    let cupom = req.query.cupom;
-
-    let total = 0;
-    for (let produto of itens) {
-        total += produto.preco
+    try {
+        if (!req.body.parcelas || isNaN(req.body.parcelas)) throw new Error('O parâmetro parcela esta inválido')
+        
+        if (req.body.itens) throw new Error('O parâmetro itens esta inválido')
+        
+        let parcelas = req.body.parcelas;
+        let itens = req.body.itens;
+        let cupom = req.query.cupom;
+    
+        let total = 0;
+        for (let produto of itens) {
+            total += produto.preco
+        }
+    
+        if (parcelas > 1) {
+            let juros = total * 0.05;
+            total += juros;
+        }
+    
+        if (cupom == 'QUERO100') {
+            total -= 100;
+        }
+    
+        let valorparcela = total/ parcelas;
+    
+        resp.send({
+            total: total,
+            valorparcela: valorparcela
+        });
     }
+    catch (err) {
+        resp.status(400).send({
+            erro: err.message
+        })
 
-    if (parcelas > 1) {
-        let juros = total * 0.05;
-        total += juros;
     }
+}) 
 
-    if (cupom == 'QUERO100') {
-        total -= 100;
-    }
-
-    let valorparcela = total/ parcelas;
+servidor.post('/perfil/capa', uploadperfil.single('imagem'), (req, resp) => {
+    let caminho = req.file.path;
+    let extensao = req.file.mimetype;
+    let nome = req.file.originalname;
 
     resp.send({
-        total: total,
-        valorparcela: valorparcela
-    });
-}) 
+        caminho: caminho,
+        extensao: extensao,
+        nome: nome
+    })
+})
 
 
 
 
 servidor.listen(
-    5001,
-     () => console.log('==> API subiu com sucesso na porta 5001!'));
+    process.env.PORTA,
+     () => console.log(`---> API subiu com sucesso na porta ${PORTA}!`));
 
